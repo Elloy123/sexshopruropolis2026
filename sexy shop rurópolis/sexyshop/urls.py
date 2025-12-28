@@ -8,5 +8,5 @@ urlpatterns = [
     path("", include("loja.urls")),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Servir arquivos de mídia (uploads)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
