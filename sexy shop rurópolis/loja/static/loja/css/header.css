@@ -1,0 +1,95 @@
+/* ============================================
+   SEXY SHOP RURÓPOLIS - HEADER CSS
+   Barra de categorias fixa
+   ============================================ */
+
+/* === BARRA DE CATEGORIAS FIXA === */
+.section-categorias-wrapper {
+    position: fixed;
+    top: 74px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    background: linear-gradient(to bottom, #8B1538, #C85A6E);
+    padding: 10px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 999;
+}
+
+.container-cats-center {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.lista-botoes-cats {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+/* === BOTÕES DE CATEGORIA - MENORES E BONITOS === */
+.botao-cat {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    text-decoration: none;
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-transform: capitalize;
+    letter-spacing: 0.3px;
+}
+
+.botao-cat:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.botao-cat.ativo {
+    background: #fff;
+    border-color: #fff;
+    color: #8B1538;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* === RESPONSIVIDADE === */
+@media (max-width: 768px) {
+    .section-categorias-wrapper {
+        top: 100px;
+        padding: 8px 0;
+    }
+
+    .lista-botoes-cats {
+        gap: 6px;
+    }
+
+    .botao-cat {
+        padding: 5px 12px;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-categorias-wrapper {
+        top: 120px;
+    }
+
+    .botao-cat {
+        padding: 4px 10px;
+        font-size: 0.7rem;
+    }
+}

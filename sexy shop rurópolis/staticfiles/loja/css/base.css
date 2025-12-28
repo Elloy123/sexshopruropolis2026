@@ -1,0 +1,178 @@
+/* ============================================
+   SEXY SHOP RURÓPOLIS - BASE CSS
+   Estilos globais e fundamentais
+   ============================================ */
+
+/* === RESET E CONFIGURAÇÕES BÁSICAS === */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: linear-gradient(179deg, #fff 0%, #ffbcf3 100%);
+    min-height: 100vh;
+    padding-top: 160px; /* Espaço para header fixo */
+}
+
+/* === TIPOGRAFIA === */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    line-height: 1.2;
+    color: #111;
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.5rem; }
+
+p {
+    margin-bottom: 1rem;
+}
+
+/* === LINKS === */
+a {
+    color: #ff2d6f;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+a:hover {
+    color: #d91c5a;
+}
+
+/* === CONTAINER === */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+
+/* === FOOTER === */
+footer {
+    text-align: center;
+    background: radial-gradient(circle, #8B1538 0%, #E6497C 88%, #FC466B 100%);
+    padding: 25px 20px;
+    margin-top: 60px;
+    color: #000;
+    font-weight: 600;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* === MENSAGENS FLUTUANTES === */
+#mensagens-flutuantes {
+    position: fixed;
+    top: 80px;
+    right: 16px;
+    z-index: 9999;
+    max-width: 320px;
+}
+
+.msg-alerta {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideIn 0.4s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.msg-alerta.error {
+    background: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.msg-icon {
+    font-size: 18px;
+}
+
+.msg-texto {
+    flex: 1;
+}
+
+.fechar-msg {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 20px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.fechar-msg:hover {
+    opacity: 1;
+}
+
+/* === RESPONSIVIDADE === */
+@media (max-width: 768px) {
+    body {
+        padding-top: 180px;
+    }
+
+    .topbar {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .brand-left,
+    .brand-right {
+        flex: 0 0 auto;
+    }
+
+    .brand {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .brand-title {
+        font-size: 1.1rem;
+    }
+
+    .logo img {
+        width: 45px;
+        height: 45px;
+    }
+
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.75rem; }
+    h3 { font-size: 1.25rem; }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding-top: 200px;
+    }
+
+    .container {
+        padding: 0 15px;
+    }
+
+    .brand-title {
+        font-size: 1rem;
+    }
+}

@@ -1,0 +1,274 @@
+{% extends 'loja/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'loja/css/carrinho.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="carrinho-container">
+    <h1 class="carrinho-titulo">Seu Carrinho</h1>
+
+    {% if not itens %}
+        <div class="carrinho-vazio">
+            <p>Seu carrinho está vazio.</p>
+            <a href="/" class="btn-voltar-compras">
+                Voltar às Compras
+            </a>
+        </div>
+    {% else %}
+
+        <!-- LAYOUT EM 2 COLUNAS -->
+        <div class="carrinho-layout">
+            <!-- COLUNA ESQUERDA: ITENS DO CARRINHO -->
+            <div>
+                <div class="itens-carrinho">
+                    <table class="carrinho-table">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Qtd</th>
+                                <th>Preço</th>
+                                <th>Subtotal</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in itens %}
+                            <tr>
+                                <td>
+                                    <div class="produto-item">
+                                        {% if item.produto.imagem %}
+                                            <img src="{{ item.produto.imagem.url }}" class="produto-img" alt="{{ item.produto.nome }}">
+                                        {% else %}
+                                            <div class="produto-img-placeholder"></div>
+                                        {% endif %}
+                                        <div>
+                                            <div class="produto-info-nome">{{ item.produto.nome }}</div>
+                                            <div class="produto-info-categoria">{{ item.produto.categoria.nome }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="td-center">
+                                    <form action="{% url 'carrinho_atualizar' item.produto.id %}" method="post" class="qtd-controls">
+                                        {% csrf_token %}
+                                        <button type="submit" name="qtd" value="{% if item.qtd > 1 %}{{ item.qtd|add:'-1' }}{% else %}0{% endif %}"
+                                                class="qtd-btn qtd-btn-minus"
+                                                {% if item.qtd == 1 %}onclick="return confirm('Remover este item?');"{% endif %}>
+                                            -
+                                        </button>
+                                        <span class="qtd-valor">{{ item.qtd }}</span>
+                                        <button type="submit" name="qtd" value="{{ item.qtd|add:'1' }}"
+                                                class="qtd-btn qtd-btn-plus">
+                                            +
+                                        </button>
+                                    </form>
+                                </td>
+
+                                <td>R$ {{ item.preco }}</td>
+                                <td class="preco-subtotal">R$ {{ item.subtotal }}</td>
+                                <td class="td-right">
+                                    <a href="{% url 'carrinho_remover' item.produto.id %}" class="link-remover">
+                                        Remover
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Total e link de limpar -->
+                <div class="carrinho-footer">
+                    <div class="total-carrinho">
+                        Total: <span class="total-valor">R$ {{ total }}</span>
+                    </div>
+                    <a href="{% url 'carrinho_limpar' %}" class="link-limpar">
+                        Esvaziar Carrinho
+                    </a>
+                </div>
+            </div>
+
+            <!-- COLUNA DIREITA: DADOS DO CLIENTE E FINALIZAÇÃO -->
+            <div>
+                <div class="finalizacao-sidebar">
+                    <h2 class="finalizacao-titulo">Dados e Finalização</h2>
+                    <p class="finalizacao-descricao">
+                        Preencha seus dados, escolha retirada ou entrega e clique em <strong>Enviar pedido no WhatsApp</strong>.
+                    </p>
+
+                    <!-- OPÇÕES DE ENTREGA / RETIRADA -->
+                    <div class="opcoes-entrega">
+                        <p class="opcoes-titulo">Opção de recebimento</p>
+
+                        <label class="opcao-label">
+                            <input type="radio" name="tipo_entrega" value="retirada" checked onclick="atualizarResumoTotal()">
+                            <span>Retirada no local <strong>(-10% de desconto)</strong></span>
+                        </label>
+
+                        <label class="opcao-label">
+                            <input type="radio" name="tipo_entrega" value="entrega" onclick="atualizarResumoTotal()">
+                            <span>Entrega em domicílio <strong>(grátis a partir de R$ 30,00; abaixo disso, taxa de R$ 5,00)</strong></span>
+                        </label>
+                    </div>
+
+                    <!-- RESUMO DOS VALORES -->
+                    <div class="resumo-valores">
+                        <div class="resumo-linha">
+                            <span>Subtotal</span>
+                            <span>R$ <span id="subtotal_valor">{{ total }}</span></span>
+                        </div>
+                        <div class="resumo-linha">
+                            <span>Desconto</span>
+                            <span>- R$ <span id="desconto_valor">0,00</span></span>
+                        </div>
+                        <div class="resumo-linha">
+                            <span>Taxa de entrega</span>
+                            <span>R$ <span id="taxa_valor">0,00</span></span>
+                        </div>
+                        <hr class="resumo-separador">
+                        <div class="resumo-linha resumo-total">
+                            <span>Total final</span>
+                            <span>R$ <span id="total_final_valor">{{ total }}</span></span>
+                        </div>
+                    </div>
+
+                    <!-- FORMULÁRIO DE DADOS -->
+                    <form id="form-dados-cliente" onsubmit="enviarPedidoWhatsapp(event)" class="form-dados">
+                        <div class="form-grupo">
+                            <label>Nome completo</label>
+                            <input type="text" id="nome_cliente" required class="form-input">
+                        </div>
+                        <div class="form-grupo">
+                            <label>Endereço completo</label>
+                            <textarea id="endereco_cliente" rows="3" class="form-input form-textarea"></textarea>
+                        </div>
+                        <div class="form-grupo">
+                            <label>Forma de pagamento</label>
+                            <select id="forma_pagamento" required class="form-input">
+                                <option value="">Selecione</option>
+                                <option>Pix</option>
+                                <option>Cartão de crédito</option>
+                                <option>Cartão de débito</option>
+                                <option>Dinheiro</option>
+                            </select>
+                        </div>
+                        <div class="form-grupo">
+                            <label>Observações (opcional)</label>
+                            <textarea id="observacoes_cliente" rows="2" class="form-input form-textarea"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-whatsapp">
+                            Enviar pedido no WhatsApp
+                        </button>
+
+                        <small class="info-pequena">
+                            O valor final considera desconto/taxa conforme a opção de recebimento.
+                        </small>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    {% endif %}
+
+</div>
+
+<!-- SCRIPT PARA MONTAR MENSAGEM DO WHATSAPP -->
+<script>
+  // Subtotal vindo do Django
+  const SUBTOTAL = parseFloat("{{ total }}".replace(",", "."));
+
+  function formatar(valor) {
+      return valor.toFixed(2).replace(".", ",");
+  }
+
+  function atualizarResumoTotal() {
+      const tipoEntrega = document.querySelector('input[name="tipo_entrega"]:checked')?.value || 'retirada';
+
+      let desconto = 0;
+      let taxa = 0;
+      let totalFinal = SUBTOTAL;
+
+      if (tipoEntrega === 'retirada') {
+          // 10% de desconto
+          desconto = SUBTOTAL * 0.10;
+      } else if (tipoEntrega === 'entrega') {
+          // entrega gratuita a partir de 30; abaixo disso, taxa 5
+          if (SUBTOTAL < 30) {
+              taxa = 5;
+          }
+      }
+
+      totalFinal = SUBTOTAL - desconto + taxa;
+
+      document.getElementById('desconto_valor').innerText = formatar(desconto);
+      document.getElementById('taxa_valor').innerText = formatar(taxa);
+      document.getElementById('total_final_valor').innerText = formatar(totalFinal);
+  }
+
+  window.addEventListener('load', atualizarResumoTotal);
+
+ function enviarPedidoWhatsapp(event) {
+    event.preventDefault();
+
+    const nome = document.getElementById('nome_cliente').value.trim();
+    const endereco = document.getElementById('endereco_cliente').value.trim();
+    const forma = document.getElementById('forma_pagamento').value;
+    const obs = document.getElementById('observacoes_cliente').value.trim();
+    const tipoEntrega = document.querySelector('input[name="tipo_entrega"]:checked')?.value || 'retirada';
+    const textoEntrega = tipoEntrega === 'retirada' ? 'Retirada no local (-10%)' : 'Entrega em domicílio';
+
+    // Validação: endereço só obrigatório para entrega
+    if (!nome || !forma) {
+        alert('Preencha nome e forma de pagamento.');
+        return;
+    }
+    
+    if (tipoEntrega === 'entrega' && !endereco) {
+        alert('Para entrega, preencha o endereço completo.');
+        return;
+    }
+
+    // Itens do carrinho gerados pelo Django
+    let itensTexto = "{% for item in itens %}- {{ item.qtd }}x {{ item.produto.nome }} (R$ {{ item.subtotal }})%0A{% endfor %}";
+
+    const subtotalStr = "Subtotal: R$ {{ total }}";
+    const descontoStr = "Desconto: R$ " + document.getElementById('desconto_valor').innerText;
+    const taxaStr = "Taxa de entrega: R$ " + document.getElementById('taxa_valor').innerText;
+    const totalFinalStr = "Total final: R$ " + document.getElementById('total_final_valor').innerText;
+
+    let msg = "Olá! Quero finalizar meu pedido:%0A%0A";
+    msg += itensTexto + "%0A";
+    msg += subtotalStr + "%0A";
+    msg += descontoStr + "%0A";
+    msg += taxaStr + "%0A";
+    msg += totalFinalStr + "%0A%0A";
+    msg += "Opção de recebimento: " + encodeURIComponent(textoEntrega) + "%0A";
+    msg += "Nome: " + encodeURIComponent(nome) + "%0A";
+    
+    // Só inclui endereço se tiver conteúdo (não mostra linha vazia na retirada)
+    if (endereco) {
+        msg += "Endereço: " + encodeURIComponent(endereco) + "%0A";
+    }
+    
+    msg += "Forma de pagamento: " + encodeURIComponent(forma) + "%0A";
+    if (obs) {
+        msg += "Observações: " + encodeURIComponent(obs) + "%0A";
+    }
+
+    const numero = "5593992434424";
+    const url = "https://wa.me/" + numero + "?text=" + msg;
+
+    window.open(url, "_blank");
+}
+
+
+</script>
+
+
+
+
+
+{% endblock %}s
